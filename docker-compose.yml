@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: booking-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password_123
+      POSTGRES_DB: booking_platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: booking-pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@booking.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password_123
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booking-app
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+      - JWT_SECRET=prod_jwt_access_secret_key_123456_change_me
+      - JWT_EXPIRES_IN=15m
+      - JWT_REFRESH_SECRET=prod_jwt_refresh_secret_key_123456_change_me
+      - JWT_REFRESH_EXPIRES_IN=7d
+      - DB_TYPE=postgres
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres_password_123
+      - DB_NAME=booking_platform
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

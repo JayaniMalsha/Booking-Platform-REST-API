@@ -1,0 +1,21 @@
+import { Repository } from 'typeorm';
+import { Booking } from './entities/booking.entity';
+import { Service } from '../services/entities/service.entity';
+import { CreateBookingDto } from './dto/create-booking.dto';
+import { UpdateBookingStatusDto } from './dto/update-booking-status.dto';
+import { FilterBookingDto } from './dto/filter-booking.dto';
+export declare class BookingsService {
+    private readonly bookingRepository;
+    private readonly serviceRepository;
+    constructor(bookingRepository: Repository<Booking>, serviceRepository: Repository<Service>);
+    create(createBookingDto: CreateBookingDto): Promise<Booking>;
+    findAll(filterDto: FilterBookingDto): Promise<{
+        data: Booking[];
+        total: number;
+        page: number;
+        limit: number;
+    }>;
+    findOne(id: string): Promise<Booking>;
+    updateStatus(id: string, updateBookingStatusDto: UpdateBookingStatusDto): Promise<Booking>;
+    cancel(id: string): Promise<Booking>;
+}
