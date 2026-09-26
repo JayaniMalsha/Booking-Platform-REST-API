@@ -95,8 +95,6 @@ DB_TYPE=sqlite
 DB_DATABASE=booking_db.sqlite
 ```
 
-> **Important:** Never commit your `.env` file or real secrets to GitHub. Only commit `.env.example` with placeholder values.
-
 ---
 
 ## Database Setup
