@@ -1,6 +1,6 @@
 # Booking Platform REST API
 
-A production-ready RESTful API built with **NestJS**, **TypeORM**, and **SQLite/PostgreSQL** for managing bookable services and customer appointments. Supports JWT-based authentication with refresh token rotation, full CRUD operations, pagination, filtering, and Swagger documentation.
+A production-ready RESTful API built with **NestJS**, **TypeORM**, and **SQLite** for managing bookable services and customer appointments. The API supports JWT-based authentication with refresh token rotation, full CRUD operations, pagination, filtering, validation, and Swagger API documentation.
 
 ---
 
@@ -8,156 +8,157 @@ A production-ready RESTful API built with **NestJS**, **TypeORM**, and **SQLite/
 
 This API powers a service booking platform where:
 
-- **Customers** can browse available services and create bookings without authentication.
-- **Admins / Staff** can register, log in, manage services, view all bookings, update booking statuses, and cancel bookings — all protected behind JWT Bearer authentication.
+* **Customers** can browse available services and create bookings without authentication.
+* **Admins / Staff** can register, log in, manage services, view all bookings, update booking statuses, and cancel bookings.
+* Protected endpoints use **JWT Bearer authentication**.
+* **SQLite** is used as the database for local development.
 
 ### Key Features
 
-| Feature | Details |
-|---|---|
-| Authentication | JWT access tokens (15 min) + refresh token rotation (7 days) |
-| Services | Full CRUD — create, list, update, delete |
-| Bookings | Create (public), list with filters & pagination, update status, cancel |
-| Database | SQLite for development, PostgreSQL for production |
-| Migrations | TypeORM migration system (no `synchronize: true` in production) |
-| Validation | Class-validator with whitelist & transform pipes |
-| Docs | Interactive Swagger UI at `/api/docs` |
-
----
+| Feature           | Details                                                                |
+| ----------------- | ---------------------------------------------------------------------- |
+| Authentication    | JWT access tokens (15 min) + refresh token rotation (7 days)           |
+| Services          | Full CRUD — create, list, update, delete                               |
+| Bookings          | Create (public), list with filters & pagination, update status, cancel |
+| Database          | SQLite with TypeORM                                                    |
+| Migrations        | TypeORM migration system for database schema management                |
+| Validation        | Class-validator with whitelist & transform pipes                       |
+| API Documentation | Interactive Swagger UI at `/api/docs`                                  |
+| API Architecture  | Modular NestJS REST API                                                |
+| Containerization  | Docker and Docker Compose support                                      |
 
 ## Installation Steps
 
 ### Prerequisites
 
-- **Node.js** v18 or later
-- **npm** v9 or later
-- *(Optional for PostgreSQL)* A running PostgreSQL instance
+* **Node.js** v18 or later
+* **npm** v9 or later
 
 ### Steps
 
 ```bash
 # 1. Clone the repository
-git clone <your-repository-url>
-cd booking-platform-rest-api
+git clone https://github.com/JayaniMalsha/Booking-Platform-REST-API.git
+cd Booking-Platform-REST-API
 
 # 2. Install dependencies
 npm install
 
-# 3. Set up environment variables (see section below)
+# 3. Create your environment file
 cp .env.example .env
-# Then edit .env with your own values
 
-# 4. Run database migrations (required before first start)
+# 4. Configure the environment variables
+# Edit .env and add your own JWT secrets
+
+# 5. Run database migrations
 npm run migration:run
 
-# 5. Start the server
+# 6. Start the development server
 npm run start:dev
 ```
 
-The API will be available at `http://localhost:3001/api`.  
-Interactive docs are at `http://localhost:3001/api/docs`.
+The API will be available at:
+
+```text
+http://localhost:3001/api
+```
+
+Interactive Swagger API documentation:
+
+```text
+http://localhost:3001/api/docs
+```
 
 ---
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure the following variables:
+Create a `.env` file from the provided `.env.example` file:
+
+```bash
+cp .env.example .env
+```
+
+Then configure the following variables:
 
 ```dotenv
-# Application
 PORT=3001
 NODE_ENV=development
 
-# JWT
-JWT_SECRET=your_super_secret_access_token_key_change_me_in_production
+JWT_SECRET=your_jwt_access_secret
 JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your_super_secret_refresh_token_key_change_me_in_production
+
+JWT_REFRESH_SECRET=your_jwt_refresh_secret
 JWT_REFRESH_EXPIRES_IN=7d
 
-# Database: set to 'sqlite' or 'postgres'
 DB_TYPE=sqlite
-
-# SQLite (used when DB_TYPE=sqlite)
 DB_DATABASE=booking_db.sqlite
-
-# PostgreSQL (used when DB_TYPE=postgres)
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=your_postgres_password
-DB_NAME=booking_platform
 ```
 
-> **Important:** Never commit your real `.env` file. Use `.env.example` as the template.
+> **Important:** Never commit your `.env` file or real secrets to GitHub. Only commit `.env.example` with placeholder values.
 
 ---
 
 ## Database Setup
 
-This project uses **TypeORM migrations** instead of `synchronize: true` to safely manage database schema changes.
+This project uses **SQLite** with **TypeORM**.
 
-### SQLite (default — development)
+TypeORM migrations are used to create and manage the database schema.
 
-No additional setup is needed. The `booking_db.sqlite` file will be created automatically when you run migrations.
-
-### PostgreSQL (production)
-
-1. Create the database:
-   ```sql
-   CREATE DATABASE booking_platform;
-   ```
-2. Update the `DB_*` environment variables in your `.env`.
-3. Set `DB_TYPE=postgres`.
-
----
-
-## Running Migrations
-
-Migrations are required to create the database schema before the application can start.
+Run the following command before starting the application:
 
 ```bash
-# Apply all pending migrations (run this on first setup and after schema changes)
 npm run migration:run
-
-# Generate a new migration after changing an entity
-npm run migration:generate
-
-# Roll back the last applied migration
-npm run migration:revert
 ```
 
-> **Note:** The `migration:generate` command compares your current entity definitions against the live database schema and creates a new migration file in `src/migrations/` with only the differences.
+The `booking_db.sqlite` database file will be created automatically.
+
+## Database Migrations
+
+Run the following command to create the database schema:
+
+```bash
+npm run migration:run
+```
+
+Other migration commands:
+
+```bash
+# Generate a new migration after changing entities
+npm run migration:generate
+
+# Revert the last migration
+npm run migration:revert
+```
 
 ---
 
 ## Running the Application
 
 ```bash
-# Development (hot-reload)
+# Development
 npm run start:dev
 
-# Standard start
+# Standard
 npm run start
 
 # Production
 npm run start:prod
 ```
 
----
-
 ## Running Tests
 
 ```bash
-# Unit tests
+# Run unit tests
 npm run test
 
-# Unit tests with coverage report
+# Run tests with coverage
 npm run test:cov
 
-# End-to-end tests
+# Run end-to-end tests
 npm run test:e2e
 
-# Watch mode
+# Run tests in watch mode
 npm run test:watch
 ```
 
@@ -165,66 +166,55 @@ npm run test:watch
 
 ## API Documentation
 
-### Interactive Swagger UI
+### Swagger UI
 
-After starting the server, navigate to:
+Start the application and open:
 
-```
+```text
 http://localhost:3001/api/docs
 ```
 
-All endpoints are documented with request/response schemas, required fields, and example values.
+Swagger provides interactive API documentation with endpoint details, request/response schemas, authentication requirements, and example values.
 
+### Authentication Endpoints
+
+| Method | Endpoint             | Auth   | Description                                 |
+| ------ | -------------------- | ------ | ------------------------------------------- |
+| POST   | `/api/auth/register` | Public | Register a new user account                 |
+| POST   | `/api/auth/login`    | Public | Login and receive access and refresh tokens |
+| POST   | `/api/auth/refresh`  | Public | Refresh and rotate authentication tokens    |
+
+### Services Endpoints
+
+| Method | Endpoint            | Auth       | Description                                 |
+| ------ | ------------------- | ---------- | ------------------------------------------- |
+| GET    | `/api/services`     | Public     | List services with pagination and filtering |
+| GET    | `/api/services/:id` | Public     | Get a specific service                      |
+| POST   | `/api/services`     | Bearer JWT | Create a service                            |
+| PUT    | `/api/services/:id` | Bearer JWT | Update a service                            |
+| DELETE | `/api/services/:id` | Bearer JWT | Delete a service                            |
+
+**Query parameters for `GET /api/services`:**
+
+* `page` — page number (default: `1`)
+* `limit` — number of results per page (default: `10`)
+* `isActive` — filter by service availability (`true`/`false`)
 ---
 
-### Authentication Endpoints (`/api/auth`)
+### Bookings Endpoints
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | Public | Register a new user account |
-| POST | `/api/auth/login` | Public | Login and receive access + refresh tokens |
-| POST | `/api/auth/refresh` | Public | Rotate tokens using a valid refresh token |
+| Method | Endpoint                   | Auth       | Description                                   |
+| ------ | -------------------------- | ---------- | --------------------------------------------- |
+| POST   | `/api/bookings`            | Public     | Create a new booking                          |
+| GET    | `/api/bookings`            | Bearer JWT | List all bookings with pagination and filters |
+| GET    | `/api/bookings/:id`        | Bearer JWT | Get a specific booking                        |
+| PATCH  | `/api/bookings/:id/status` | Bearer JWT | Update booking status                         |
+| DELETE | `/api/bookings/:id`        | Bearer JWT | Cancel a booking                              |
 
-**Login Response Example:**
-```json
-{
-  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
-}
-```
-
----
-
-### Services Endpoints (`/api/services`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | `/api/services` | Public | List all services (paginated, filter by `isActive`) |
-| GET | `/api/services/:id` | Public | Get details of a specific service |
-| POST | `/api/services` | Bearer JWT | Create a new service |
-| PUT | `/api/services/:id` | Bearer JWT | Update an existing service |
-| DELETE | `/api/services/:id` | Bearer JWT | Delete a service |
-
-**Query Parameters for `GET /api/services`:**
-- `page` (number, default: 1)
-- `limit` (number, default: 10)
-- `isActive` (boolean, optional)
-
----
-
-### Bookings Endpoints (`/api/bookings`)
-
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/bookings` | Public | Create a new booking |
-| GET | `/api/bookings` | Bearer JWT | List all bookings (paginated, filterable) |
-| GET | `/api/bookings/:id` | Bearer JWT | Get a specific booking by ID |
-| PATCH | `/api/bookings/:id/status` | Bearer JWT | Update booking status |
-| DELETE | `/api/bookings/:id` | Bearer JWT | Cancel a booking |
-
-**Booking Status Values:** `pending` | `confirmed` | `cancelled` | `completed`
+**Booking Status Values:** `pending` · `confirmed` · `cancelled` · `completed`
 
 **Create Booking Request Body:**
+
 ```json
 {
   "customerName": "Jane Doe",
@@ -239,42 +229,34 @@ All endpoints are documented with request/response schemas, required fields, and
 
 ---
 
-## Assumptions Made
+## Assumptions
 
-1. **Single-role authentication:** All authenticated users share the same admin/staff role. There is no separate customer login — customers submit bookings directly with their personal details.
-2. **No double-booking enforcement at the database level:** The service prevents duplicate bookings for the same service, date, and time at the application layer via a uniqueness check before inserting.
-3. **Soft cancel, not hard delete:** The `DELETE /bookings/:id` endpoint sets the booking status to `cancelled` rather than removing the record, preserving an audit trail.
-4. **UUID primary keys:** All entities use UUID v4 as primary keys for security (non-sequential, non-enumerable IDs).
-5. **Refresh token hashing:** Refresh tokens are hashed with `bcrypt` before storage; the raw token is only returned once at login time.
-6. **SQLite as the default:** SQLite is used for local development to reduce setup friction. The codebase is environment-driven and switches to PostgreSQL when `DB_TYPE=postgres`.
+1. Customers can create bookings without an account.
+2. Authenticated users can manage services and bookings.
+3. Duplicate bookings for the same service, date, and time are checked at the application level.
+4. Cancelling a booking changes its status to `cancelled` instead of deleting the record.
+5. Entities use UUID v4 primary keys.
+6. Refresh tokens are securely hashed before being stored.
 
 ---
 
 ## Future Improvements
 
-- **Role-Based Access Control (RBAC):** Introduce `admin` and `staff` roles with fine-grained permissions.
-- **Email Notifications:** Send booking confirmation and status-change emails to customers via a service like SendGrid or Nodemailer.
-- **Recurring Bookings:** Allow customers to set up weekly or monthly repeating appointments.
-- **Service Availability Windows:** Define per-service working hours and block bookings outside those windows.
-- **Rate Limiting:** Add `@nestjs/throttler` to protect public endpoints from abuse.
-- **Soft Delete:** Use TypeORM's `@DeleteDateColumn` for true soft-delete across all entities.
-- **Admin Dashboard:** A companion React/Next.js front end for visualising booking statistics and managing services.
-- **Docker Compose (Production):** Extend `docker-compose.yml` with a production profile using PostgreSQL with persistent volumes.
-- **CI/CD Pipeline:** Add GitHub Actions to run tests and lint on every pull request.
+* Role-based access control (RBAC)
+* Email notifications for booking confirmations and status updates
+* Recurring bookings
+* Service availability and working hours
+* API rate limiting
+* Admin dashboard
+* CI/CD with GitHub Actions
+* Production Docker configuration
 
 ---
 
 ## Docker Support
 
-A `Dockerfile` and `docker-compose.yml` are included for containerised development.
+Docker and Docker Compose configuration are included for containerized development.
 
 ```bash
-# Build and start containers
 docker-compose up --build
 ```
-
----
-
-## License
-
-UNLICENSED — proprietary project.
